@@ -1,8 +1,6 @@
 'use strict';
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// BANKIST APP
+///////////////////////////////////////////////// BANKIST APP /////////////////////////////////////////////////
 
 // Data
 const account1 = {
@@ -61,10 +59,29 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// LECTURES
+///////////////////////////////////////////////// DOM Elements /////////////////////////////////////////////////
+const displayMovments = transiactions => {
+  containerMovements.innerHTML = '';
 
+  transiactions.forEach((movment, i) => {
+    let type = movment > 0 ? 'deposit' : 'withdrawal';
+
+    const html = `
+      <div class="movements__row">
+        <div class="movements__type movements__type--${type}">
+          ${i + 1} ${type}
+        </div>
+        <div class="movements__date">3 days ago</div>
+        <div class="movements__value">${movment}€</div>
+      </div>
+    `;
+
+    containerMovements.insertAdjacentHTML('afterbegin', html);
+  });
+};
+displayMovments(account1.movements);
+
+///////////////////////////////////////////////// LECTURES /////////////////////////////////////////////////
 const currencies = new Map([
   ['USD', 'United States dollar'],
   ['EUR', 'Euro'],
