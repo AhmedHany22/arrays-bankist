@@ -71,10 +71,15 @@ const createUsers = accs => {
 };
 createUsers(accounts);
 
-const displayMovments = transiactions => {
+let currentUser;
+let sorted = false;
+
+const displayMovments = (transiactions, sorted = false) => {
   containerMovements.innerHTML = '';
 
-  transiactions.forEach((movment, i) => {
+  const sortedMovs = sorted ? currentUser.movements.slice().sort((a, b) => a - b) : transiactions;
+
+  sortedMovs.forEach((movment, i) => {
     let type = movment > 0 ? 'deposit' : 'withdrawal';
 
     const html = `
@@ -91,9 +96,14 @@ const displayMovments = transiactions => {
   });
 };
 
-const displayBalance = moves => {
-  const balance = moves.reduce((acc, cur, i, arr) => acc + cur, 0);
-  labelBalance.textContent = `${balance} EGP`;
+const displayBalance = account => {
+
+
+  account.balance = account.movements.reduce(
+    (acc, cur, i, arr) => acc + cur,
+    0
+  );
+  labelBalance.textContent = `${account.balance} EGP`;
 };
 
 const displaySummary = ({ movements: movs, interestRate }) => {
@@ -118,7 +128,11 @@ const displaySummary = ({ movements: movs, interestRate }) => {
   labelSumInterest.textContent = `${interest} EGP`;
 };
 
-let currentUser;
+const updateUi = user => {
+  displayMovments(user.movements);
+  displayBalance(user);
+  displaySummary(user);
+};
 
 btnLogin.addEventListener('click', e => {
   e.preventDefault();
@@ -127,20 +141,71 @@ btnLogin.addEventListener('click', e => {
   );
 
   if (currentUser?.pin === Number(inputLoginPin.value)) {
-    labelWelcome.textContent = `Welcome back ${
-      currentUser.owner.split(' ')[0]
-    }`;
+    labelWelcome.textContent = `Welcome back ${currentUser.owner.split(' ')[0]
+      }`;
 
     containerApp.style.opacity = 100;
 
     inputLoginPin.value = inputLoginUsername.value = '';
     inputLoginPin.blur();
 
-    displayMovments(currentUser.movements);
-    displayBalance(currentUser.movements);
-    displaySummary(currentUser);
+    updateUi(currentUser);
   }
 });
+
+btnTransfer.addEventListener('click', e => {
+  e.preventDefault();
+
+  // ----- ----- Data ----- -----
+  const transferAmount = Number(inputTransferAmount.value);
+  const recieverAccount = accounts.find(acc => acc.username === inputTransferTo.value.toLowerCase());
+
+  console.log(recieverAccount);
+  // ----- ----- Clear ----- -----
+  inputTransferAmount.value = inputTransferTo.value = '';
+
+  // ----- ----- Action ----- -----
+  if (transferAmount > 0 && recieverAccount && currentUser.balance >= transferAmount && recieverAccount?.username !== currentUser.username) {
+    currentUser.movements.push(-transferAmount);
+    recieverAccount.movements.push(transferAmount);
+
+    updateUi(currentUser);
+  }
+});
+
+btnClose.addEventListener('click', e => {
+  e.preventDefault();
+
+  if (inputCloseUsername.value === currentUser.username && Number(inputClosePin.value) === currentUser.pin) {
+    const index = accounts.findIndex(acc => acc.username === inputCloseUsername.value);
+    console.log(index, accounts);
+
+    // ----- ----- Action ----- -----
+    accounts.splice(index, 1);
+
+    // ----- ----- UI ----- -----
+    containerApp.style.opacity = 0;
+  }
+
+  inputClosePin.value = inputCloseUsername.value = '';
+})
+
+btnLoan.addEventListener('click', (e) => {
+  e.preventDefault();
+
+  console.log(currentUser.movements);
+  const loanAmount = Number(inputLoanAmount.value);
+  if (loanAmount > 0 && currentUser.movements.some(mov => mov >= loanAmount * 0.1)) console.log(currentUser.movements.push(loanAmount));
+
+  updateUi(currentUser);
+})
+
+btnSort.addEventListener('click', (e) => {
+  e.preventDefault();
+
+  displayMovments(currentUser.movements, sorted);
+  sorted = !sorted;
+})
 
 ///////////////////////////////////////////////// LECTURES /////////////////////////////////////////////////
 const currencies = new Map([
