@@ -74,7 +74,7 @@ createUsers(accounts);
 let currentUser;
 let sorted = false;
 
-const displayMovments = (transiactions, sorted = false) => {
+const displayMovements = (transiactions, sorted = false) => {
   containerMovements.innerHTML = '';
 
   const sortedMovs = sorted ? currentUser.movements.slice().sort((a, b) => a - b) : transiactions;
@@ -129,7 +129,7 @@ const displaySummary = ({ movements: movs, interestRate }) => {
 };
 
 const updateUi = user => {
-  displayMovments(user.movements);
+  displayMovements(user.movements);
   displayBalance(user);
   displaySummary(user);
 };
@@ -160,7 +160,6 @@ btnTransfer.addEventListener('click', e => {
   const transferAmount = Number(inputTransferAmount.value);
   const recieverAccount = accounts.find(acc => acc.username === inputTransferTo.value.toLowerCase());
 
-  console.log(recieverAccount);
   // ----- ----- Clear ----- -----
   inputTransferAmount.value = inputTransferTo.value = '';
 
@@ -178,7 +177,6 @@ btnClose.addEventListener('click', e => {
 
   if (inputCloseUsername.value === currentUser.username && Number(inputClosePin.value) === currentUser.pin) {
     const index = accounts.findIndex(acc => acc.username === inputCloseUsername.value);
-    console.log(index, accounts);
 
     // ----- ----- Action ----- -----
     accounts.splice(index, 1);
@@ -193,9 +191,7 @@ btnClose.addEventListener('click', e => {
 btnLoan.addEventListener('click', (e) => {
   e.preventDefault();
 
-  console.log(currentUser.movements);
   const loanAmount = Number(inputLoanAmount.value);
-  if (loanAmount > 0 && currentUser.movements.some(mov => mov >= loanAmount * 0.1)) console.log(currentUser.movements.push(loanAmount));
 
   updateUi(currentUser);
 })
@@ -203,7 +199,7 @@ btnLoan.addEventListener('click', (e) => {
 btnSort.addEventListener('click', (e) => {
   e.preventDefault();
 
-  displayMovments(currentUser.movements, sorted);
+  displayMovements(currentUser.movements, sorted);
   sorted = !sorted;
 })
 
@@ -236,4 +232,33 @@ const humanAge = testData
 
 // const avrageAge = ages => ages.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
-// console.log('humanAge : ' + humanAge);
+
+///////////////////////////////////////////////// Practice Array Methods /////////////////////////////////////////////////
+const bankDepSum = accounts.flatMap(acc => acc.movements).filter(mov => mov > 0).reduce((acc, cur) => acc + cur, 0);
+const numDep1000 = accounts.flatMap(acc => acc.movements).filter(mov => mov > 0).reduce((acc, cur) => (cur > 1000 ? ++acc : acc), 0);
+
+console.log(bankDepSum);
+console.log(numDep1000);
+
+///////////////////////////////////////////////// Challange 3 /////////////////////////////////////////////////
+const dogs = [
+  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
+  { weight: 11, curFood: 200, owners: ['Jiena', 'Jon'] },
+  { weight: 13, curFood: 275, owners: ['Sarah', 'Ron'] },
+  { weight: 32, curFood: 340, owners: ['Lenda', 'Lee'] }
+]
+
+dogs.map(dog => dog.recFood = Math.trunc(dog.weight ** 0.75 * 28))
+console.log(dogs);
+
+const sarahDog = dogs.find(dog => dog.owners[0] == 'Sarah')
+console.log(sarahDog.curFood > sarahDog.recFood ? 'Eating to much' : 'Eating to little');
+
+const ownerTooMuch = dogs.filter(dog => dog.curFood > dog.recFood).flatMap(dog => dog.owners)
+console.log(ownerTooMuch.join(' and ') + ' dogs eat too much');
+
+const ownerTooLittle = dogs.filter(dog => dog.curFood < dog.recFood).flatMap(dog => dog.owners)
+console.log(ownerTooLittle.join(' and ') + ' dogs eat too little');
+
+const exactlyTheSame = dogs.some(dog => dog.curFood == dog.recFood)
+console.log(exactlyTheSame);
